@@ -3,6 +3,13 @@
 <head>
     <title>Speech Interaction</title>
     <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+          "imports": {
+            "@google/generative-ai": "https://esm.run/@google/generative-ai"
+          }
+        }
+      </script>
 </head>
 <body>
     <h1>Speech Interaction</h1>
@@ -10,6 +17,48 @@
     <div id="status"></div>
     <button id="startButton">Start</button>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
+    <script>
+        const utterance = new SpeechSynthesisUtterance("數學實驗室幾點關門?");
+        console.log(speechSynthesis.getVoices());
+        utterance.voice = speechSynthesis.getVoices()[1]; // Choose a specific voice
+        utterance.pitch = 2;
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        function setSpeech() {
+            return new Promise(
+                function (resolve, reject) {
+                    let synth = window.speechSynthesis;
+                    let id;
+
+                    id = setInterval(() => {
+                        if (synth.getVoices().length !== 0) {
+                            resolve(synth.getVoices());
+                            clearInterval(id);
+                        }
+                    }, 10);
+                }
+            )
+        }
+
+        let s = setSpeech();
+        s.then(async (voices) => {
+            let i = 0;
+            console.log(voices);
+            /*for (let voice of voices) {
+                
+                utterance.voice = voices[i];
+                console.log(i + " " + voices[i].voiceURI);
+                speechSynthesis.speak(utterance);
+                await sleep(3000)
+                i++;
+            }*/
+            utterance.voice = voices[59];
+            speechSynthesis.speak(utterance);
+        }); 
+
+
+    </script>
 </body>
 </html>

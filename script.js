@@ -1,11 +1,66 @@
+import { HarmBlockThreshold, HarmCategory, GoogleGenerativeAI } from "@google/generative-ai";
 const outputDiv = document.getElementById('output');
 const statusDiv = document.getElementById('status');
 const startButton = document.getElementById('startButton');
+
+let api_keys = [
+    "V3JpdHRlbiBieSBBdXN0aW4gUGhpbGxpcHMgQXVnLVNlcCAyMDI0",
+    "AIzaSyAkNOjhY-ayGISlV2yHXWIjrA-v0VOojHE",
+    "VEhJUyBXQVMgTVkgSURFQS4gRmFsbCBvZiAyMDIz",
+    "QWRkaXRpb25hbCBMaWJyYXJpZXMgTGljZW5zZXMgaW5jbHVkZWQ="
+];
+
+const API_KEY = api_keys[1];
+
+// Access your API key (see "Set up your API key" above)
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+];
+
+var model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone.`, safetySettings});
 
 let recognition; // SpeechRecognition instance
 let isListening = false;
 let isSpeaking = false;
 let speechSynthesisUtterance;
+
+let voices = [];
+
+function setSpeech() {
+    return new Promise(
+        function (resolve, reject) {
+            let synth = window.speechSynthesis;
+            let id;
+
+            id = setInterval(() => {
+                if (synth.getVoices().length !== 0) {
+                    resolve(synth.getVoices());
+                    clearInterval(id);
+                }
+            }, 10);
+        }
+    )
+}
+
+let s = setSpeech();
+s.then(v => voices = v);
 
 function initializeSpeechRecognition() {
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -26,11 +81,11 @@ function initializeSpeechRecognition() {
         isListening = true;
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = async (event) => {
         const speechResult = event.results[0][0].transcript;
         outputDiv.textContent = "You said: " + speechResult;
         statusDiv.textContent = "Processing...";
-        processUserSpeech(speechResult); // Call function to handle the transcribed text
+        await processUserSpeech(speechResult); // Call function to handle the transcribed text
     };
 
     recognition.onspeechend = () => {
@@ -77,6 +132,7 @@ function speak(text) {
     if ('speechSynthesis' in window) {
         isSpeaking = true;
         speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+        speechSynthesisUtterance.voice = voices[80];
 
         speechSynthesisUtterance.onstart = () => {
             statusDiv.textContent = "Speaking...";
@@ -104,19 +160,49 @@ function speak(text) {
     }
 }
 
-function processUserSpeech(speechResult) {
+async function processUserSpeech(speechResult) {
     // Replace this with your logic to generate a response based on speechResult
     let responseText;
 
-    if (speechResult.toLowerCase().includes("hello")) {
-        responseText = "Hello there! How can I help you today?";
-    } else if (speechResult.toLowerCase().includes("goodbye")) {
-        responseText = "Goodbye! Have a great day.";
-    } else {
-        responseText = "I'm sorry, I didn't understand that. Could you please repeat?";
-    }
+    responseText = await getResponse(speechResult, model);
+    responseText = responseText.text;
+    console.log(responseText);
 
     speak(responseText);
+}
+
+
+
+async function getResponse(prompt, mdl, depth) {
+    if (mdl == null) {
+        mdl = model;
+    }
+    //const prompt = textbox.value;
+    if (depth == null) {
+        depth = 0;
+    }
+    let contents = "";
+    refreshModel();
+    try {
+        //console.log(prompt);
+        let respo = await mdl.generateContent(prompt);
+        respo = respo.response;
+        
+        //const result = respo.text();
+        contents = respo;
+        //console.log("**********RESULT*********\n\n\n\n\n\n");
+        console.log(respo);
+    } catch (error) {
+        console.log(error);
+        if (depth < 3) {
+            contents = generateResponse(prompt,mdl, depth+1);
+        }
+        else {
+            return {"contents":null, "text":"I'm sorry, can you please say that one more time for me?", "citations":null};
+        }
+    }
+    
+    return {"contents":contents, "text":contents.text(), "citations":contents.candidates[0].citationMetadata};
 }
 
 
