@@ -1,0 +1,16 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+}
+
+#output {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    min-height: 50px;
+}
+
+#status {
+    margin-top: 10px;
+    font-style: italic;
+}
