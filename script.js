@@ -132,7 +132,11 @@ function speak(text) {
     if ('speechSynthesis' in window) {
         isSpeaking = true;
         speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
-        speechSynthesisUtterance.voice = voices[80];
+        if (voices.length > 70) {
+            speechSynthesisUtterance.voice = voices[80];
+        } else {
+            speechSynthesisUtterance.voice = voices[14];
+        }
 
         speechSynthesisUtterance.onstart = () => {
             statusDiv.textContent = "Speaking...";
@@ -182,7 +186,6 @@ async function getResponse(prompt, mdl, depth) {
         depth = 0;
     }
     let contents = "";
-    refreshModel();
     try {
         //console.log(prompt);
         let respo = await mdl.generateContent(prompt);
@@ -195,7 +198,7 @@ async function getResponse(prompt, mdl, depth) {
     } catch (error) {
         console.log(error);
         if (depth < 3) {
-            contents = generateResponse(prompt,mdl, depth+1);
+            contents = await getResponse(prompt,mdl, depth+1);
         }
         else {
             return {"contents":null, "text":"I'm sorry, can you please say that one more time for me?", "citations":null};
