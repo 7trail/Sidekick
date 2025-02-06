@@ -122,7 +122,7 @@ function initializeSpeechRecognition() {
             }
         }
         stopListening();
-        //await sleep(500);
+        await sleep(200);
         startListening();
     };
 
@@ -161,7 +161,7 @@ function speak(text) {
         s = setSpeech();
         s.then(v => {
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
-        let getDesiredVoice = document.getElementById("voices").value;
+        let getDesiredVoice = document.getElementById("voices").selectedIndex;
         if (v.length > getDesiredVoice) {
             speechSynthesisUtterance.voice = v[getDesiredVoice];
         } else {
@@ -211,7 +211,7 @@ function getGreeterPrompt() {
     var time = new Date();
     let formattedTime = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
 
-    let greeterPrompt = `You are a greeter for Tarrant County College students and visitors. 
+    let greeterPrompt = `You are a greeter for Tarrant County College students and visitors. Should it come up, your name is Cassidy, but don't bring it up yourself.
 
     Your job is to continue, as a greeter, the following conversation. If it has not been done yet, ask users for their name and refer to them by it.
 
@@ -235,7 +235,7 @@ function getGreeterPrompt() {
 }
 
 function getSidekickPrompt() {
-    let sidekickPrompt = `You are an assistant for Tarrant County College students and visitors. 
+    let sidekickPrompt = `You are an assistant for Tarrant County College students and visitors.  Should it come up, your name is Cassidy, but don't bring it up yourself.
 
     Your job is to continue, as an assistant, the following conversation.
 
