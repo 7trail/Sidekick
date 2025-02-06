@@ -15,10 +15,17 @@
       </script>
 </head>
 <body class="inconsolata-main">
-    <h1>Sidekick</h1>
+    <h1>"Sidekick"</h1>
     <span><b>Slow</b></span>
     <input type="range" min="0.5" max="2" value="1" step="0.5" id="rate" />
     <span><b>Fast</b></span>
+    <div class="modeSelect">
+        <input type="radio" id="option1" name="mode" value="greeter">
+        <label for="option1">Greeter</label>
+      
+        <input type="radio" id="option2" name="mode" value="sidekick">
+        <label for="option2">Sidekick</label> 
+      </div>
     <div id="speechBubble">
         <div class="circle" id="circle1">
      
@@ -35,6 +42,10 @@
     <div id="output"></div>
     <div id="status"></div>
     <button id="startButton">Start</button>
+    <br>
+    <select id="voices" size="10">
+
+    </select>
 
     <script type="module" src="script.js"></script>
     <script>

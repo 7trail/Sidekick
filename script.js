@@ -62,12 +62,21 @@ function setSpeech() {
 }
 
 let s = setSpeech();
-s.then(v => {voices = v
+s.then(v => {voices = v;
+    let listBox = document.getElementById("voices");
+    let i = 0;
+    for (let voice in voices) {
+        let element = document.createElement("option");
+        element.textContent = voice.voiceURI.toString().replace("Microsoft ", "");
+        element.value = i;
+        listBox.appendChild(element);
 
+    }
     console.log(voices);
 });
 
 let fullContext = "";
+let count = 0;
 
 function initializeSpeechRecognition() {
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -96,7 +105,8 @@ function initializeSpeechRecognition() {
     };
 
     recognition.onspeechend = () => {
-        statusDiv.textContent = "Stopped listening.";
+        statusDiv.textContent = "Acknowledged response";
+        count = 0;
         stopListening(); // Stop listening when speech ends
     };
 
@@ -105,10 +115,14 @@ function initializeSpeechRecognition() {
         statusDiv.textContent = "Error: " + event.error;
         if (event.error.toString() == "no-speech") {
             //This is the best thing ever
-            fullContext = "";
+            count++;
+            if (count > 5) {
+                count = 0;
+                fullContext = "";
+            }
         }
         stopListening();
-        await sleep(500);
+        //await sleep(500);
         startListening();
     };
 
@@ -147,8 +161,9 @@ function speak(text) {
         s = setSpeech();
         s.then(v => {
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
-        if (v.length > 70) {
-            speechSynthesisUtterance.voice = v[80];
+        let getDesiredVoice = document.getElementById("voices").value;
+        if (v.length > getDesiredVoice) {
+            speechSynthesisUtterance.voice = v[getDesiredVoice];
         } else {
             speechSynthesisUtterance.voice = v[14];
         }
@@ -183,6 +198,71 @@ function speak(text) {
     }
 }
 
+function getGreeterPrompt() {
+
+    var time = new Date();
+    let formattedTime = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
+
+    let greeterPrompt = `You are a greeter for Tarrant County College students and visitors. 
+
+    Your job is to continue, as a greeter, the following conversation. If it has not been done yet, ask users for their name and refer to them by it.
+
+    You are allowed to discuss the following material:
+    - All Learning Commons services (Library and Learning Centers) are open 7:30 am - 9:00 pm Monday through Thursday, 7:30 - 5:00 pm Friday, and 10:00 - 4:00 pm Saturday.
+    - The Math Learning Center is open to all students, but specifically serves math and physics students best.
+    - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exams.
+    - Assistants are knowledgeable on Algebra, Pre-calculus, Trigonometry, Statistics, Calculus, Contemporary Math, Differential Equations, Discrete Math, Physics, and more.
+    - If you need to take an exam, ask a tutor for assistance.
+    - If you need to make up an exam, you may be able to use the Math Testing Center. Talk to a tutor to get additional information.
+
+    You are also allowed to make general smalltalk with students. You may respond in the same language the student has spoken to you in, you can speak any language.
+
+    It is currently ${formattedTime}. If that time is past 8:30 pm, inform the student that the Math Learning Center will be closing soon (if it has not been done already).
+
+    Simply provide your response, with no formatting. Keep your response under 30 words.
+    
+    The conversation begins below:`
+
+    return greeterPrompt;
+}
+
+function getSidekickPrompt() {
+    let sidekickPrompt = `You are an assistant for Tarrant County College students and visitors. 
+
+    Your job is to continue, as an assistant, the following conversation.
+
+    You assist students in their learning. They may ask you questions and you will answer them.
+    Your answers are no longer than 100 words. Your responses should be informative and factual.
+    You should inquire as to the subject that the student is studying, if you have not done so.
+    While you should entertain them with smalltalk if they so desire, you should not allow it to persist long, and you should work to keep them focused.
+    
+    The conversation begins below:`
+
+    return sidekickPrompt;
+}
+
+const radioButtons = document.getElementsByName("myOptions");
+
+function getMode() {
+    let selectedValue = "greeter";
+
+    // Loop through the radio buttons to find the selected one
+    for (let i = 0; i < radioButtons.length; i++) {
+        if (radioButtons[i].checked) {
+        selectedValue = radioButtons[i].value;
+        break; // Exit the loop once a selected button is found
+        }
+    }
+    return selectedValue;
+}
+
+for (let button of radioButtons) {
+    button.addEventListener("change", () => {
+        console.log("RESET");
+        fullContext = "";
+    });
+}
+
 
 
 async function processUserSpeech(speechResult) {
@@ -191,7 +271,15 @@ async function processUserSpeech(speechResult) {
 
     fullContext += `\nUser: ${speechResult} \n`;
 
-    let prompt = `You are a greeter for Tarrant County College students and visitors. Your job is to continue, as a greeter, the following conversation. Simply provide your response, with no formatting. Keep your response under 30 words. \n\n ${fullContext}`
+
+    let p = "";
+    if (getMode() == "greeter") {
+        p = getGreeterPrompt();
+    } else {
+        p = getSidekickPrompt();
+    }
+
+    let prompt = `${p} \n\n ${fullContext}`
 
     console.log(prompt);
 
@@ -264,7 +352,7 @@ let t = 0;
 let factor = 1;
 window.setInterval(() => {
     color = {r: lerp(color.r, targetColor.r, 0.05), g: lerp(color.g, targetColor.g, 0.05), b: lerp(color.b, targetColor.b, 0.05)};
-    let newFactor = 1 * (isListening ? 0.4 : 1) * (isSpeaking ? 2 : 1);
+    let newFactor = 1 * (isListening ? 0.4 : 1) * (isSpeaking ? 1.5 : 1);
     factor = lerp(factor, newFactor, 0.05);
 
     let f1 = (Math.abs(Math.sin(t)) * 0.75 + 0.25);
