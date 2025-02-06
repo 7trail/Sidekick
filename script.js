@@ -144,11 +144,13 @@ function stopListening() {
 function speak(text) {
     if ('speechSynthesis' in window) {
         isSpeaking = true;
-        speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
-        if (voices.length > 70) {
-            speechSynthesisUtterance.voice = voices[80];
+        s = setSpeech();
+        s.then(v => {
+            speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+        if (v.length > 70) {
+            speechSynthesisUtterance.voice = v[80];
         } else {
-            speechSynthesisUtterance.voice = voices[14];
+            speechSynthesisUtterance.voice = v[14];
         }
 
         speechSynthesisUtterance.rate = document.getElementById("rate").value;
@@ -174,6 +176,7 @@ function speak(text) {
         };
 
         window.speechSynthesis.speak(speechSynthesisUtterance);
+        })
     } else {
         statusDiv.textContent = "Text-to-speech not supported.";
         isSpeaking = false;
