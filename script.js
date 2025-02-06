@@ -65,7 +65,7 @@ let s = setSpeech();
 s.then(v => {voices = v;
     let listBox = document.getElementById("voices");
     let i = 0;
-    for (let voice in voices) {
+    for (let voice of voices) {
         let element = document.createElement("option");
         element.textContent = voice.voiceURI.toString().replace("Microsoft ", "");
         element.value = i;
@@ -172,13 +172,21 @@ function speak(text) {
 
         speechSynthesisUtterance.onstart = () => {
             statusDiv.textContent = "Speaking...";
-            targetColor = {r: 50, g: 50, b: 255};
+            if (getMode() == "greeter") {
+                targetColor = {r: 50, g: 50, b: 255};
+            } else {
+                targetColor = {r: 50, g: 255, b: 50};
+            }
         };
 
         speechSynthesisUtterance.onend = () => {
             isSpeaking = false;
             statusDiv.textContent = "Speaking complete.";
-            targetColor = {r: 0, g: 0, b: 255};
+            if (getMode() == "greeter") {
+                targetColor = {r: 0, g: 0, b: 255};
+            } else {
+                targetColor = {r: 0, g: 255, b: 0};
+            }
             // Restart listening after speaking is done
             startListening();
         };
@@ -283,7 +291,11 @@ async function processUserSpeech(speechResult) {
 
     console.log(prompt);
 
-    targetColor = {r: 0, g: 0, b: 50};
+    if (getMode() == "greeter") {
+        targetColor = {r: 0, g: 0, b: 50};
+    } else {
+        targetColor = {r: 0, g: 50, b: 0};
+    }
     responseText = await getResponse(prompt, model);
     
     responseText = responseText.text;
