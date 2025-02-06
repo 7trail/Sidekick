@@ -162,6 +162,9 @@ function speak(text) {
         s.then(v => {
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
         let getDesiredVoice = document.getElementById("voices").selectedIndex;
+        if (getDesiredVoice == null) {
+            getDesiredVoice = 101;
+        }
         if (v.length > getDesiredVoice) {
             speechSynthesisUtterance.voice = v[getDesiredVoice];
         } else {
@@ -216,6 +219,7 @@ function getGreeterPrompt() {
     Your job is to continue, as a greeter, the following conversation. If it has not been done yet, ask users for their name and refer to them by it.
 
     You are allowed to discuss the following material:
+    - Students must sign in at the kiosk with either their student ID or email address. Don't forget to sign out!
     - All Learning Commons services (Library and Learning Centers) are open 7:30 am - 9:00 pm Monday through Thursday, 7:30 - 5:00 pm Friday, and 10:00 - 4:00 pm Saturday.
     - The Math Learning Center is open to all students, but specifically serves math and physics students best.
     - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exams.
@@ -268,6 +272,11 @@ for (let button of radioButtons) {
     button.addEventListener("change", () => {
         console.log("RESET");
         fullContext = "";
+        if (getMode() == "greeter") {
+            targetColor = {r: 0, g: 0, b: 255};
+        } else {
+            targetColor = {r: 0, g: 255, b: 0};
+        }
     });
 }
 
