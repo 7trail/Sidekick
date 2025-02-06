@@ -249,7 +249,7 @@ function getSidekickPrompt() {
     return sidekickPrompt;
 }
 
-const radioButtons = document.getElementsByName("myOptions");
+const radioButtons = document.getElementsByName("mode");
 
 function getMode() {
     let selectedValue = "greeter";
