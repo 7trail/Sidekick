@@ -45,27 +45,6 @@ body {
     animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-#circle1 {
-    animation-name: animation1;
-    animation-iteration-count: infinite;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-}
-
-#circle2 {
-    animation-name: animation2;
-    animation-iteration-count: infinite;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-}
-
-#circle3 {
-    animation-name: animation3;
-    animation-iteration-count: infinite;
-    animation-duration: 2s;
-    animation-fill-mode: forwards;
-}
-
 #speechBubble {
     display: flex;
     flex-direction: row;
@@ -75,59 +54,3 @@ body {
     margin: auto;
 }
 
-
-
-@keyframes animation1 {
-0% {
-    background-color: grey;
-
-}
-25% {
-    background-color: grey;
-}
-50% {
-    background-color: var(--theme-color-1);
-}
-75% {
-    background-color: grey;
-}
-100% {
-    background-color: grey;
-}
-}
-
-@keyframes animation2 {
-0% {
-    background-color: grey;
-}
-25% {
-    background-color: var(--theme-color-1);
-}
-50% {
-    background-color: grey;
-}
-75% {
-    background-color: grey;
-}
-100% {
-    background-color: grey;
-}
-}
-
-@keyframes animation3 {
-0% {
-    background-color: var(--theme-color-1);
-}
-25% {
-    background-color: grey;
-}
-50% {
-    background-color: grey;
-}
-75% {
-    background-color: grey;
-}
-100% {
-    background-color: var(--theme-color-1);
-}
-}

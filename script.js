@@ -88,7 +88,7 @@ function initializeSpeechRecognition() {
 
     recognition.onresult = async (event) => {
         const speechResult = event.results[0][0].transcript;
-        outputDiv.textContent = "You said: " + speechResult;
+        //outputDiv.textContent = "You said: " + speechResult;
         statusDiv.textContent = "Processing...";
         await processUserSpeech(speechResult); // Call function to handle the transcribed text
     };
@@ -151,12 +151,13 @@ function speak(text) {
 
         speechSynthesisUtterance.onstart = () => {
             statusDiv.textContent = "Speaking...";
+            targetColor = {r: 50, g: 50, b: 255};
         };
 
         speechSynthesisUtterance.onend = () => {
             isSpeaking = false;
             statusDiv.textContent = "Speaking complete.";
-
+            targetColor = {r: 0, g: 0, b: 255};
             // Restart listening after speaking is done
             startListening();
         };
@@ -187,8 +188,9 @@ async function processUserSpeech(speechResult) {
 
     console.log(prompt);
 
-
+    targetColor = {r: 0, g: 0, b: 50};
     responseText = await getResponse(prompt, model);
+    
     responseText = responseText.text;
     fullContext += `\nAI: ${responseText} \n`
 
@@ -242,6 +244,11 @@ startButton.addEventListener('click', () => {
 function lerp(a, b, t) {
     return a * (1-t) + b * t;
 }
+
+let color = {r: 0, g: 0, b: 0};
+let targetColor = {r: 0, g: 0, b: 255};
+
+
 const speechPart1 = document.getElementById('circle1');
 const speechPart2 = document.getElementById('circle2');
 const speechPart3 = document.getElementById('circle3');
@@ -249,16 +256,32 @@ const speechPart3 = document.getElementById('circle3');
 let t = 0;
 let factor = 1;
 window.setInterval(() => {
+    color = {r: lerp(color.r, targetColor.r, 0.05), g: lerp(color.g, targetColor.g, 0.05), b: lerp(color.b, targetColor.b, 0.05)};
     let newFactor = 1 * (isListening ? 0.4 : 1) * (isSpeaking ? 2 : 1);
     factor = lerp(factor, newFactor, 0.05);
 
-    let speech1Height = (Math.abs(Math.sin(t)) * 0.75 + 0.25) * factor * 200;
+    let f1 = (Math.abs(Math.sin(t)) * 0.75 + 0.25);
+    let speech1Height =  f1* factor * 200;
     speechPart1.style.height = `${speech1Height}px`
 
-    let speech2Height = (Math.abs(Math.sin(t+0.2)) * 0.75 + 0.25) * factor * 200;
+    let f2 = (Math.abs(Math.sin(t+0.2)) * 0.75 + 0.25);
+    let speech2Height = f2 * factor * 200;
     speechPart2.style.height = `${speech2Height}px`
-    let speech3Height = (Math.abs(Math.sin(t+ 0.4)) * 0.75 + 0.25) * factor * 200;
+
+    let f3 = (Math.abs(Math.sin(t+0.4)) * 0.75 + 0.25);
+    let speech3Height = f3 * factor * 200;
     speechPart3.style.height = `${speech3Height}px`
+
+    let speech1Color = {r: lerp(0.5, color.r, f1), g: lerp(0.5, color.g, f1), b: lerp(0.5, color.b, f1)};
+    speechPart1.style.backgroundColor = `rgb(${speech1Color.r}, ${speech1Color.g}, ${speech1Color.b})`;
+
+    let speech2Color = {r: lerp(0.5, color.r, f2), g: lerp(0.5, color.g, f2), b: lerp(0.5, color.b, f2)};
+    speechPart2.style.backgroundColor = `rgb(${speech2Color.r}, ${speech2Color.g}, ${speech2Color.b})`;
+
+    let speech3Color = {r: lerp(0.5, color.r, f3), g: lerp(0.5, color.g, f3), b: lerp(0.5, color.b, f3)};
+    speechPart3.style.backgroundColor = `rgb(${speech3Color.r}, ${speech3Color.g}, ${speech3Color.b})`;
+
+
     
     t+= 0.02;
 }, 10)
