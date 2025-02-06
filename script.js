@@ -118,6 +118,7 @@ function initializeSpeechRecognition() {
             count++;
             if (count > 5) {
                 count = 0;
+                outputDiv.innerHTML="<b>Try speaking to me!</b>";
                 fullContext = "";
             }
         }
@@ -209,27 +210,47 @@ function speak(text) {
     }
 }
 
+let centerProfileDict = {
+    "math": {
+        "name": "Math Learning Center",
+        "field": "",
+        "additionalData": `- The Math Learning Center is open to all students, but specifically serves math and physics students best.
+    - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exams.
+    - Assistants are knowledgeable on Algebra, Pre-calculus, Trigonometry, Statistics, Calculus, Contemporary Math, Differential Equations, Discrete Math, Physics, and more.
+    - If you need to take an exam, ask a tutor for assistance.
+    - If you need to make up an exam, you may be able to use the Math Testing Center. Talk to a tutor to get additional information.`
+    },
+    "computer-science": {
+        "name": "Computer Learning Center",
+        "field": "",
+        "additionalData": `- The Computer Learning Center is open to all students, but specifically serves computer science students best.
+    - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exam.
+    - Assistants are knowledgeable on Microsoft Office, C++, Java, Python, Web Programming, Networking, Cloud Computing, General Computer Usage, and more.
+    - If students express a need to work on graphics assignments, there is a dedicated Graphic Design lab located in NCAB.
+    - If you need to take an exam, ask a tutor for assistance.`
+    }
+}
+
+let centerProfile = "math";
+
 function getGreeterPrompt() {
 
     var time = new Date();
     let formattedTime = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
+    let profile = centerProfileDict[centerProfile];
 
-    let greeterPrompt = `You are a greeter for Tarrant County College students and visitors. Should it come up, your name is Cassidy, but don't bring it up yourself.
+    let greeterPrompt = `You are a greeter for Tarrant County College students and visitors. Don't bring up your name- let students ask for it (Cassidy).
 
     Your job is to continue, as a greeter, the following conversation. If it has not been done yet, ask users for their name and refer to them by it.
 
     You are allowed to discuss the following material:
     - Students must sign in at the kiosk with either their student ID or email address. Don't forget to sign out!
     - All Learning Commons services (Library and Learning Centers) are open 7:30 am - 9:00 pm Monday through Thursday, 7:30 - 5:00 pm Friday, and 10:00 - 4:00 pm Saturday.
-    - The Math Learning Center is open to all students, but specifically serves math and physics students best.
-    - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exams.
-    - Assistants are knowledgeable on Algebra, Pre-calculus, Trigonometry, Statistics, Calculus, Contemporary Math, Differential Equations, Discrete Math, Physics, and more.
-    - If you need to take an exam, ask a tutor for assistance.
-    - If you need to make up an exam, you may be able to use the Math Testing Center. Talk to a tutor to get additional information.
+    ${profile.additionalData}
 
     You are also allowed to make general smalltalk with students. You may respond in the same language the student has spoken to you in, you can speak any language.
 
-    It is currently ${formattedTime}. If that time is past 8:30 pm, inform the student that the Math Learning Center will be closing soon (if it has not been done already).
+    It is currently ${formattedTime}. If that time is past 8:30 pm, inform the student that the ${profile.name} will be closing soon (if it has not been done already).
 
     Simply provide your response, with no formatting. Keep your response under 30 words.
     
@@ -239,11 +260,12 @@ function getGreeterPrompt() {
 }
 
 function getSidekickPrompt() {
-    let sidekickPrompt = `You are an assistant for Tarrant County College students and visitors.  Should it come up, your name is Cassidy, but don't bring it up yourself.
+    let profile = centerProfileDict[centerProfile];
+    let sidekickPrompt = `You are a assistant for Tarrant County College students and visitors. Don't bring up your name- let students ask for it (Cassidy).
 
     Your job is to continue, as an assistant, the following conversation.
 
-    You assist students in their learning. They may ask you questions and you will answer them.
+    You assist students in their learning. They may ask you questions and you will answer them. You primarily serve the ${profile.name}.
     Your answers are no longer than 100 words. Your responses should be informative and factual.
     You should inquire as to the subject that the student is studying, if you have not done so.
     While you should entertain them with smalltalk if they so desire, you should not allow it to persist long, and you should work to keep them focused.
@@ -254,6 +276,7 @@ function getSidekickPrompt() {
 }
 
 const radioButtons = document.getElementsByName("mode");
+const radioButtons2 = document.getElementsByName("profile");
 
 function getMode() {
     let selectedValue = "greeter";
@@ -263,6 +286,18 @@ function getMode() {
         if (radioButtons[i].checked) {
         selectedValue = radioButtons[i].value;
         break; // Exit the loop once a selected button is found
+        }
+    }
+    return selectedValue;
+}
+
+function getProfile() {
+    let selectedValue = "math";
+
+    for (let i = 0; i < radioButtons2.length; i++) {
+        if (radioButtons2[i].checked) {
+            selectedValue = radioButtons2[i].value;
+            break;
         }
     }
     return selectedValue;
@@ -280,6 +315,13 @@ for (let button of radioButtons) {
     });
 }
 
+for (let button of radioButtons2) {
+    button.addEventListener("change", () => {
+        console.log("RESET");
+        fullContext = "";
+    });
+}
+
 
 
 async function processUserSpeech(speechResult) {
@@ -287,7 +329,7 @@ async function processUserSpeech(speechResult) {
     let responseText;
 
     fullContext += `\nUser: ${speechResult} \n`;
-
+    centerProfile = getProfile();
 
     let p = "";
     if (getMode() == "greeter") {
@@ -301,9 +343,9 @@ async function processUserSpeech(speechResult) {
     console.log(prompt);
 
     if (getMode() == "greeter") {
-        targetColor = {r: 0, g: 0, b: 50};
+        targetColor = {r: 0, g: 0, b: 30};
     } else {
-        targetColor = {r: 0, g: 50, b: 0};
+        targetColor = {r: 0, g: 30, b: 0};
     }
     responseText = await getResponse(prompt, model);
     
