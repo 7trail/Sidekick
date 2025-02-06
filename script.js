@@ -3,6 +3,8 @@ const outputDiv = document.getElementById('output');
 const statusDiv = document.getElementById('status');
 const startButton = document.getElementById('startButton');
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 let api_keys = [
     "V3JpdHRlbiBieSBBdXN0aW4gUGhpbGxpcHMgQXVnLVNlcCAyMDI0",
     "AIzaSyAkNOjhY-ayGISlV2yHXWIjrA-v0VOojHE",
@@ -98,7 +100,7 @@ function initializeSpeechRecognition() {
         stopListening(); // Stop listening when speech ends
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = async (event) => {
         console.error("Speech Recognition Error:", event.error);
         statusDiv.textContent = "Error: " + event.error;
         if (event.error.toString() == "no-speech") {
@@ -106,14 +108,16 @@ function initializeSpeechRecognition() {
             fullContext = "";
         }
         stopListening();
+        await sleep(500);
+        startListening();
     };
 
     recognition.onend = () => {
         isListening = false;
-        if (!isSpeaking) {
+        /*if (!isSpeaking) {
             // Restart listening only if not currently speaking
             startListening();
-        }
+        }*/
     };
 }
 
@@ -272,13 +276,13 @@ window.setInterval(() => {
     let speech3Height = f3 * factor * 200;
     speechPart3.style.height = `${speech3Height}px`
 
-    let speech1Color = {r: lerp(0.5, color.r, f1), g: lerp(0.5, color.g, f1), b: lerp(0.5, color.b, f1)};
+    let speech1Color = {r: lerp(0.5, color.r, Math.pow(f1, 2)), g: lerp(0.5, color.g, Math.pow(f1, 2)), b: lerp(0.5, color.b, Math.pow(f1, 2))};
     speechPart1.style.backgroundColor = `rgb(${speech1Color.r}, ${speech1Color.g}, ${speech1Color.b})`;
 
-    let speech2Color = {r: lerp(0.5, color.r, f2), g: lerp(0.5, color.g, f2), b: lerp(0.5, color.b, f2)};
+    let speech2Color = {r: lerp(0.5, color.r, Math.pow(f2, 2)), g: lerp(0.5, color.g, Math.pow(f2, 2)), b: lerp(0.5, color.b, Math.pow(f2, 2))};
     speechPart2.style.backgroundColor = `rgb(${speech2Color.r}, ${speech2Color.g}, ${speech2Color.b})`;
 
-    let speech3Color = {r: lerp(0.5, color.r, f3), g: lerp(0.5, color.g, f3), b: lerp(0.5, color.b, f3)};
+    let speech3Color = {r: lerp(0.5, color.r, Math.pow(f3, 2)), g: lerp(0.5, color.g, Math.pow(f3, 2)), b: lerp(0.5, color.b, Math.pow(f3, 2))};
     speechPart3.style.backgroundColor = `rgb(${speech3Color.r}, ${speech3Color.g}, ${speech3Color.b})`;
 
 
