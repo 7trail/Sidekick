@@ -19,6 +19,7 @@
 
     <script type="module" src="script.js"></script>
     <script>
+        /*
         const utterance = new SpeechSynthesisUtterance("數學實驗室幾點關門?");
         console.log(speechSynthesis.getVoices());
         utterance.voice = speechSynthesis.getVoices()[1]; // Choose a specific voice
@@ -46,17 +47,19 @@
         s.then(async (voices) => {
             let i = 0;
             console.log(voices);
-            /*for (let voice of voices) {
+            for (let voice of voices) {
                 
                 utterance.voice = voices[i];
                 console.log(i + " " + voices[i].voiceURI);
                 speechSynthesis.speak(utterance);
                 await sleep(3000)
                 i++;
-            }*/
+            }
             utterance.voice = voices[59];
             speechSynthesis.speak(utterance);
         }); 
+
+        */
 
 
     </script>

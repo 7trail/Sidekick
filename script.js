@@ -60,7 +60,10 @@ function setSpeech() {
 }
 
 let s = setSpeech();
-s.then(v => voices = v);
+s.then(v => {voices = v
+
+    console.log(voices);
+});
 
 function initializeSpeechRecognition() {
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
