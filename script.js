@@ -65,6 +65,8 @@ s.then(v => {voices = v
     console.log(voices);
 });
 
+let fullContext = "";
+
 function initializeSpeechRecognition() {
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -99,6 +101,10 @@ function initializeSpeechRecognition() {
     recognition.onerror = (event) => {
         console.error("Speech Recognition Error:", event.error);
         statusDiv.textContent = "Error: " + event.error;
+        if (event.error.toString() == "no-speech") {
+            //This is the best thing ever
+            fullContext = "";
+        }
         stopListening();
     };
 
@@ -141,6 +147,8 @@ function speak(text) {
             speechSynthesisUtterance.voice = voices[14];
         }
 
+        speechSynthesisUtterance.rate = document.getElementById("rate").value;
+
         speechSynthesisUtterance.onstart = () => {
             statusDiv.textContent = "Speaking...";
         };
@@ -167,12 +175,24 @@ function speak(text) {
     }
 }
 
+
+
 async function processUserSpeech(speechResult) {
     // Replace this with your logic to generate a response based on speechResult
     let responseText;
 
-    responseText = await getResponse(speechResult, model);
+    fullContext += `\nUser: ${speechResult} \n`;
+
+    let prompt = `You are a greeter for Tarrant County College students and visitors. Your job is to continue, as a greeter, the following conversation. Simply provide your response, with no formatting. Keep your response under 30 words. \n\n ${fullContext}`
+
+    console.log(prompt);
+
+
+    responseText = await getResponse(prompt, model);
     responseText = responseText.text;
+    fullContext += `\nAI: ${responseText} \n`
+
+    outputDiv.textContent = responseText;
     console.log(responseText);
 
     speak(responseText);
@@ -218,6 +238,32 @@ startButton.addEventListener('click', () => {
         startListening();
     }
 });
+
+function lerp(a, b, t) {
+    return a * (1-t) + b * t;
+}
+const speechPart1 = document.getElementById('circle1');
+const speechPart2 = document.getElementById('circle2');
+const speechPart3 = document.getElementById('circle3');
+
+let t = 0;
+let factor = 1;
+window.setInterval(() => {
+    let newFactor = 1 * (isListening ? 0.4 : 1) * (isSpeaking ? 2 : 1);
+    factor = lerp(factor, newFactor, 0.05);
+
+    let speech1Height = (Math.abs(Math.sin(t)) * 0.75 + 0.25) * factor * 200;
+    speechPart1.style.height = `${speech1Height}px`
+
+    let speech2Height = (Math.abs(Math.sin(t+0.2)) * 0.75 + 0.25) * factor * 200;
+    speechPart2.style.height = `${speech2Height}px`
+    let speech3Height = (Math.abs(Math.sin(t+ 0.4)) * 0.75 + 0.25) * factor * 200;
+    speechPart3.style.height = `${speech3Height}px`
+    
+    t+= 0.02;
+}, 10)
+
+
 
 // Initialize
 initializeSpeechRecognition();
