@@ -46,7 +46,7 @@ const safetySettings = [
   },
 ];
 
-var model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone. You speak to users ONLY in the language they speak to you in.`, safetySettings});
+var model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone. ONLY SPEAK IN LANGUAGES USERS SPEAK TO YOU IN. You speak in sentences, not lists.`, safetySettings});
 
 let recognition; // SpeechRecognition instance
 let isListening = false;
