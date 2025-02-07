@@ -396,6 +396,8 @@ async function getResponse(prompt, mdl, depth) {
 startButton.addEventListener('click', () => {
     if (!isListening && !isSpeaking) {
         startListening();
+        startButton.style.display="none";
+        document.getElementById("maxwidth").style.opacity=0.2;
     }
 });
 
