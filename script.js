@@ -184,6 +184,7 @@ function stopListening() {
 let hasManuallySelectedVoice = false;
 document.getElementById("voices").addEventListener("change", () => {
     hasManuallySelectedVoice = true;
+    console.log("Changed");
 });
 
 function speak(text) {
@@ -192,12 +193,12 @@ function speak(text) {
         s = setSpeech();
         s.then(v => {
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
-            let getDesiredVoice = 0;
+            let getDesiredVoice = -1;
             if (hasManuallySelectedVoice) {
                 getDesiredVoice = document.getElementById("voices").selectedIndex;
             }
             
-            if (getDesiredVoice == null) {
+            if (getDesiredVoice ==-1) {
                 getDesiredVoice = languageMap[language];
             }
             if (v.length > getDesiredVoice) {
