@@ -12,6 +12,16 @@ let api_keys = [
     "QWRkaXRpb25hbCBMaWJyYXJpZXMgTGljZW5zZXMgaW5jbHVkZWQ="
 ];
 
+let languageMap = {
+    "en": 101,
+    "es": 282,
+    "fr": 139,
+    "de": 150,
+    "ja": 185,
+    "ko": 196,
+    "zh": 59
+};
+
 const API_KEY = api_keys[1];
 
 // Access your API key (see "Set up your API key" above)
@@ -138,6 +148,19 @@ function initializeSpeechRecognition() {
     };
 }
 
+let hasStarted = false;
+
+
+
+function restart() {
+    if (!isListening && !isSpeaking && hasStarted) {
+        statusDiv.textContent = "Restarting...";
+        startListening();
+        
+    }
+}
+
+window.setInterval(restart, 10000);
 
 function startListening() {
     if (recognition && !isListening && !isSpeaking) {
@@ -158,58 +181,68 @@ function stopListening() {
     }
 }
 
+let hasManuallySelectedVoice = false;
+document.getElementById("voices").addEventListener("change", () => {
+    hasManuallySelectedVoice = true;
+});
+
 function speak(text) {
     if ('speechSynthesis' in window) {
         isSpeaking = true;
         s = setSpeech();
         s.then(v => {
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
-        let getDesiredVoice = document.getElementById("voices").selectedIndex;
-        console.log(getDesiredVoice)
-        if (getDesiredVoice == null) {
-            getDesiredVoice = 101;
-        }
-        if (v.length > getDesiredVoice) {
-            speechSynthesisUtterance.voice = v[getDesiredVoice];
-        } else {
-            speechSynthesisUtterance.voice = v[14];
-        }
-
-        speechSynthesisUtterance.rate = document.getElementById("rate").value;
-
-        speechSynthesisUtterance.onstart = () => {
-            statusDiv.textContent = "Speaking...";
-            if (getMode() == "greeter") {
-                targetColor = {r: 50, g: 50, b: 255};
-            } else if (getMode() == "sidekick") {
-                targetColor = {r: 50, g: 255, b: 50};
-            } else if (getMode() == "general") {
-                targetColor = {r: 255, g: 50, b: 50};
+            let getDesiredVoice = 0;
+            if (hasManuallySelectedVoice) {
+                getDesiredVoice = document.getElementById("voices").selectedIndex;
             }
-        };
-
-        speechSynthesisUtterance.onend = () => {
-            isSpeaking = false;
-            statusDiv.textContent = "Speaking complete.";
-            if (getMode() == "greeter") {
-                targetColor = {r: 0, g: 0, b: 255};
-            } else if (getMode() == "sidekick") {
-                targetColor = {r: 0, g: 255, b: 0};
-            } else if (getMode() == "general") {
-                targetColor = {r: 255, g: 0, b: 0};
+            
+            if (getDesiredVoice == null) {
+                getDesiredVoice = languageMap[language];
             }
-            // Restart listening after speaking is done
-            startListening();
-        };
+            if (v.length > getDesiredVoice) {
+                speechSynthesisUtterance.voice = v[getDesiredVoice];
+            } else {
+                speechSynthesisUtterance.voice = v[14];
+            }
 
-        speechSynthesisUtterance.onerror = (event) => {
-            console.error("TTS Error:", event.error);
-            statusDiv.textContent = "TTS Error: " + event.error;
-            isSpeaking = false;
-            startListening();  // Try to recover and listen again
-        };
+            console.log(getDesiredVoice)
 
-        window.speechSynthesis.speak(speechSynthesisUtterance);
+            speechSynthesisUtterance.rate = document.getElementById("rate").value;
+
+            speechSynthesisUtterance.onstart = () => {
+                statusDiv.textContent = "Speaking...";
+                if (getMode() == "greeter") {
+                    targetColor = {r: 50, g: 50, b: 255};
+                } else if (getMode() == "sidekick") {
+                    targetColor = {r: 50, g: 255, b: 50};
+                } else if (getMode() == "general") {
+                    targetColor = {r: 255, g: 50, b: 50};
+                }
+            };
+
+            speechSynthesisUtterance.onend = () => {
+                isSpeaking = false;
+                statusDiv.textContent = "Speaking complete.";
+                if (getMode() == "greeter") {
+                    targetColor = {r: 0, g: 0, b: 255};
+                } else if (getMode() == "sidekick") {
+                    targetColor = {r: 0, g: 255, b: 0};
+                } else if (getMode() == "general") {
+                    targetColor = {r: 255, g: 0, b: 0};
+                }
+                // Restart listening after speaking is done
+                startListening();
+            };
+
+            speechSynthesisUtterance.onerror = (event) => {
+                console.error("TTS Error:", event.error);
+                statusDiv.textContent = "TTS Error: " + event.error;
+                isSpeaking = false;
+                startListening();  // Try to recover and listen again
+            };
+
+            window.speechSynthesis.speak(speechSynthesisUtterance);
         })
     } else {
         statusDiv.textContent = "Text-to-speech not supported.";
@@ -341,11 +374,11 @@ for (let button of radioButtons) {
         console.log("RESET");
         fullContext = "";
         if (getMode() == "greeter") {
-            targetColor = {r: 0, g: 0, b: 255};
+            targetColor = {r: 0, g: 0, b: 50};
         } else if (getMode() == "sidekick") {
-            targetColor = {r: 0, g: 255, b: 0};
+            targetColor = {r: 0, g: 50, b: 0};
         } else if (getMode() == "general") {
-            targetColor = {r: 255, g: 0, b: 0};
+            targetColor = {r: 50, g: 0, b: 0};
         }
     });
 }
@@ -441,6 +474,15 @@ for (let btn of document.querySelectorAll(".langBtn")) {
             document.getElementById("languages").style.display="none";
             language = btn.id;
             document.getElementById("maxwidth").style.opacity=0.2;
+            hasStarted = true;
+
+            if (getMode() == "greeter") {
+                targetColor = {r: 0, g: 0, b: 255};
+            } else if (getMode() == "sidekick") {
+                targetColor = {r: 0, g: 255, b: 0};
+            } else if (getMode() == "general") {
+                targetColor = {r: 255, g: 0, b: 0};
+            }
         }
     });
 }
@@ -450,7 +492,7 @@ function lerp(a, b, t) {
 }
 
 let color = {r: 0, g: 0, b: 0};
-let targetColor = {r: 0, g: 0, b: 255};
+let targetColor = {r: 0, g: 0, b: 50};
 
 
 const speechPart1 = document.getElementById('circle1');
