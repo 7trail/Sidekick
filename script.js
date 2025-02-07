@@ -203,8 +203,10 @@ function speak(text) {
             }
             if (v.length > getDesiredVoice) {
                 speechSynthesisUtterance.voice = v[getDesiredVoice];
-            } else {
+            } else if (v.length > 14) {
                 speechSynthesisUtterance.voice = v[14];
+            } else {
+                speechSynthesisUtterance.voice = v[0];
             }
 
             console.log(getDesiredVoice)
