@@ -36,7 +36,7 @@ const safetySettings = [
   },
 ];
 
-var model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone.`, safetySettings});
+var model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone. You speak to users ONLY in the language they speak to you in.`, safetySettings});
 
 let recognition; // SpeechRecognition instance
 let isListening = false;
@@ -165,6 +165,7 @@ function speak(text) {
         s.then(v => {
             speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
         let getDesiredVoice = document.getElementById("voices").selectedIndex;
+        console.log(getDesiredVoice)
         if (getDesiredVoice == null) {
             getDesiredVoice = 101;
         }
@@ -180,8 +181,10 @@ function speak(text) {
             statusDiv.textContent = "Speaking...";
             if (getMode() == "greeter") {
                 targetColor = {r: 50, g: 50, b: 255};
-            } else {
+            } else if (getMode() == "sidekick") {
                 targetColor = {r: 50, g: 255, b: 50};
+            } else if (getMode() == "general") {
+                targetColor = {r: 255, g: 50, b: 50};
             }
         };
 
@@ -190,8 +193,10 @@ function speak(text) {
             statusDiv.textContent = "Speaking complete.";
             if (getMode() == "greeter") {
                 targetColor = {r: 0, g: 0, b: 255};
-            } else {
+            } else if (getMode() == "sidekick") {
                 targetColor = {r: 0, g: 255, b: 0};
+            } else if (getMode() == "general") {
+                targetColor = {r: 255, g: 0, b: 0};
             }
             // Restart listening after speaking is done
             startListening();
@@ -216,6 +221,7 @@ let centerProfileDict = {
     "math": {
         "name": "Math Learning Center",
         "field": "",
+        "location": "Tarrant County College",
         "additionalData": `- The Math Learning Center is open to all students, but specifically serves math and physics students best.
     - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exams.
     - Assistants are knowledgeable on Algebra, Pre-calculus, Trigonometry, Statistics, Calculus, Contemporary Math, Differential Equations, Discrete Math, Physics, and more.
@@ -225,6 +231,7 @@ let centerProfileDict = {
     "computer-science": {
         "name": "Computer Learning Center",
         "field": "",
+        "location": "Tarrant County College",
         "additionalData": `- The Computer Learning Center is open to all students, but specifically serves computer science students best.
     - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exam.
     - Assistants are knowledgeable on Microsoft Office, C++, Java, Python, Web Programming, Networking, Cloud Computing, General Computer Usage, and more.
@@ -236,6 +243,7 @@ let centerProfileDict = {
     "library": {
         "name": "Library",
         "field": "",
+        "location": "Tarrant County College",
         "additionalData": `- The Library is open to all students and members of the community.
         - Students that need help with research assignments may ask library staff.
         - The library has a copying station on the second floor.
@@ -256,7 +264,7 @@ function getGreeterPrompt() {
     let formattedTime = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
     let profile = centerProfileDict[centerProfile];
 
-    let greeterPrompt = `You are a greeter for Tarrant County College students and visitors. Don't bring up your name- let students ask for it (Cassidy).
+    let greeterPrompt = `You are a greeter for ${profile.location} students and visitors. Don't bring up your name- let students ask for it (Cassidy).
 
     Your job is to continue, as a greeter, the following conversation. If it has not been done yet, ask users for their name and refer to them by it.
 
@@ -278,7 +286,7 @@ function getGreeterPrompt() {
 
 function getSidekickPrompt() {
     let profile = centerProfileDict[centerProfile];
-    let sidekickPrompt = `You are a assistant for Tarrant County College students and visitors. Don't bring up your name- let students ask for it (Cassidy).
+    let sidekickPrompt = `You are a assistant for ${profile.location} students and visitors. Don't bring up your name- let students ask for it (Cassidy).
 
     Your job is to continue, as an assistant, the following conversation.
 
@@ -290,6 +298,14 @@ function getSidekickPrompt() {
     The conversation begins below:`
 
     return sidekickPrompt;
+}
+
+function getGeneralPrompt() {
+    return `You are a general assistant. You maintain a formal attitude and respond/do as instructed to. Your name is Cassidy.
+    
+    Your job is to continue, as an assistant, the following conversation.
+    
+    The conversation begins below:`;
 }
 
 const radioButtons = document.getElementsByName("mode");
@@ -326,8 +342,10 @@ for (let button of radioButtons) {
         fullContext = "";
         if (getMode() == "greeter") {
             targetColor = {r: 0, g: 0, b: 255};
-        } else {
+        } else if (getMode() == "sidekick") {
             targetColor = {r: 0, g: 255, b: 0};
+        } else if (getMode() == "general") {
+            targetColor = {r: 255, g: 0, b: 0};
         }
     });
 }
@@ -351,8 +369,11 @@ async function processUserSpeech(speechResult) {
     let p = "";
     if (getMode() == "greeter") {
         p = getGreeterPrompt();
-    } else {
+    } else if (getMode() == "sidekick") {
         p = getSidekickPrompt();
+    } else if (getMode() == "general") {
+
+        p = getGeneralPrompt();
     }
 
     let prompt = `${p} \n\n ${fullContext}`
@@ -361,8 +382,10 @@ async function processUserSpeech(speechResult) {
 
     if (getMode() == "greeter") {
         targetColor = {r: 0, g: 0, b: 30};
-    } else {
+    } else if (getMode() == "sidekick") {
         targetColor = {r: 0, g: 30, b: 0};
+    } else if (getMode() == "general") {
+        targetColor = {r: 30, g: 0, b: 0};
     }
     responseText = await getResponse(prompt, model);
     
@@ -415,7 +438,7 @@ for (let btn of document.querySelectorAll(".langBtn")) {
     btn.addEventListener('click', () => {
         if (!isListening && !isSpeaking) {
             startListening();
-            document.getElementById("language").style.display="none";
+            document.getElementById("languages").style.display="none";
             language = btn.id;
             document.getElementById("maxwidth").style.opacity=0.2;
         }
