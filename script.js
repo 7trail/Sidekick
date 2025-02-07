@@ -83,7 +83,7 @@ function initializeSpeechRecognition() {
 
     if (!window.SpeechRecognition) {
         statusDiv.textContent = "Speech recognition is not supported in this browser.";
-        for (let btn of document.querySelectorAll("langBtn")) {
+        for (let btn of document.querySelectorAll(".langBtn")) {
             btn.disabled = true
         }
         return;
@@ -411,7 +411,7 @@ async function getResponse(prompt, mdl, depth) {
 
 // Event Listeners
 
-for (let btn of document.querySelectorAll("langBtn")) {
+for (let btn of document.querySelectorAll(".langBtn")) {
     btn.addEventListener('click', () => {
         if (!isListening && !isSpeaking) {
             startListening();
