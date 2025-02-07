@@ -226,8 +226,23 @@ let centerProfileDict = {
         "additionalData": `- The Computer Learning Center is open to all students, but specifically serves computer science students best.
     - Assistants are available to assist you with your work if you need it, but they will not assist with quizzes or exam.
     - Assistants are knowledgeable on Microsoft Office, C++, Java, Python, Web Programming, Networking, Cloud Computing, General Computer Usage, and more.
+    - Students that need help with research assignments may ask the Library.
+    - Students that need the Tech Support help desk (after attempting a manual password reset or sign-in issues) should call 817-515-8324.
     - If students express a need to work on graphics assignments, there is a dedicated Graphic Design lab located in NCAB.
     - If you need to take an exam, ask a tutor for assistance.`
+    },
+    "library": {
+        "name": "Library",
+        "field": "",
+        "additionalData": `- The Library is open to all students and members of the community.
+        - Students that need help with research assignments may ask library staff.
+        - The library has a copying station on the second floor.
+        - The library has 3d printers available on the first floor for all student use.
+        - The library can loan devices to students for the semester, free of charge.
+        - The library offers quiet study rooms that can be rented on the first floor.
+        - The library has an article database available at library.tccd.edu.
+        - You can renew materials online at library.tccd.edu the first time, but subsequent renewals must be done in-person
+        - Late fees are largely nonexistent, but they may place a hold on your student account until returned.`
     }
 }
 
@@ -244,7 +259,7 @@ function getGreeterPrompt() {
     Your job is to continue, as a greeter, the following conversation. If it has not been done yet, ask users for their name and refer to them by it.
 
     You are allowed to discuss the following material:
-    - Students must sign in at the kiosk with either their student ID or email address. Don't forget to sign out!
+    - Students must sign in at the kiosk with either their student ID or email address.
     - All Learning Commons services (Library and Learning Centers) are open 7:30 am - 9:00 pm Monday through Thursday, 7:30 - 5:00 pm Friday, and 10:00 - 4:00 pm Saturday.
     ${profile.additionalData}
 
