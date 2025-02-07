@@ -1,7 +1,7 @@
 import { HarmBlockThreshold, HarmCategory, GoogleGenerativeAI } from "@google/generative-ai";
 const outputDiv = document.getElementById('output');
 const statusDiv = document.getElementById('status');
-const startButton = document.getElementById('startButton');
+let language = "en-US";
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -36,7 +36,7 @@ const safetySettings = [
   },
 ];
 
-var model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone.`, safetySettings});
+var model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", systemInstruction: `You greet students, answer their questions, and speak in a friendly tone.`, safetySettings});
 
 let recognition; // SpeechRecognition instance
 let isListening = false;
@@ -83,12 +83,14 @@ function initializeSpeechRecognition() {
 
     if (!window.SpeechRecognition) {
         statusDiv.textContent = "Speech recognition is not supported in this browser.";
-        startButton.disabled = true;
+        for (let btn of document.querySelectorAll("langBtn")) {
+            btn.disabled = true
+        }
         return;
     }
 
     recognition = new window.SpeechRecognition();
-    recognition.lang = 'en-US'; // You can change the language
+    recognition.lang = language; // You can change the language
     recognition.interimResults = false; // Only final results
     recognition.maxAlternatives = 1;
 
@@ -408,13 +410,17 @@ async function getResponse(prompt, mdl, depth) {
 
 
 // Event Listeners
-startButton.addEventListener('click', () => {
-    if (!isListening && !isSpeaking) {
-        startListening();
-        startButton.style.display="none";
-        document.getElementById("maxwidth").style.opacity=0.2;
-    }
-});
+
+for (let btn of document.querySelectorAll("langBtn")) {
+    btn.addEventListener('click', () => {
+        if (!isListening && !isSpeaking) {
+            startListening();
+            document.getElementById("language").style.display="none";
+            language = btn.id;
+            document.getElementById("maxwidth").style.opacity=0.2;
+        }
+    });
+}
 
 function lerp(a, b, t) {
     return a * (1-t) + b * t;
